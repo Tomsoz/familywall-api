@@ -118,6 +118,9 @@ export interface CalendarEvent {
   eventId: string;
   description: string;
   text: string;
+  where: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface EventDataPayload {
