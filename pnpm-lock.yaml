@@ -7,14 +7,13 @@ settings:
 importers:
 
   .:
-    dependencies:
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.6.1
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.11
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.6.1
       tsx:
         specifier: ^4.0.0
         version: 4.21.0
