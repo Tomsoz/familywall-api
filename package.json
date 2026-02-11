@@ -1,21 +1,36 @@
 {
   "name": "familywall-api",
+  "author": "Tomsoz",
+  "repository": "https://github.com/Tomsoz/familywall-api",
+  "keywords": [
+    "familywall",
+    "api",
+    "calendar"
+  ],
   "version": "1.0.0",
   "type": "module",
   "description": "FamilyWall API",
   "main": "dist/index.js",
   "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts"
   },
-  "dependencies": {
-    "dotenv": "^16.4.5"
-  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "dotenv": "^16.4.5"
   }
 }
