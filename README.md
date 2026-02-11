@@ -1,6 +1,7 @@
 
 # FamilyWall API Client
 
+This repository was forked from https://github.com/CodingButter/familywall-api
 This repository contains TypeScript modules for interacting with the FamilyWall API:
 
 1. **FamilyWallClient** - A client that interfaces with the FamilyWall API.
@@ -85,6 +86,10 @@ The `Family` module provides additional functionality to handle family-related d
 - **getFamilyMedia()** - Get family cover media
 - **getMessages()** - Get messaging threads
 - **getPremiumAccountDetails()** - Get premium account details
+- **await getCalendarEvents()** - List all events on the family calendar
+- **await createCalendarEvent()** - Create an event on the family calendar
+- **await deleteCalendarEvent()** - Delete an event from the family calendar
+- **await updateCalendarEvent()** - Update an event on the family calendar
 
 ---
 

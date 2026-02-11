@@ -17,6 +17,7 @@ const run = async (): Promise<void> => {
   await client.login(email, password);
   const family = await client.getFamily();
   const events = await family.getCalendarEvents();
+
 };
 
 run();

@@ -28,6 +28,10 @@ export default class Family {
     this.client = client;
   }
 
+  async updateCalendarEvent(eventId: string, event: CreateEventRequest): Promise<CalendarEvent> {
+    return await this.client.updateEvent(eventId, event);
+  }
+
   async createCalendarEvent(event: CreateEventRequest): Promise<CalendarEvent> {
     return await this.client.createEvent(event);
   }

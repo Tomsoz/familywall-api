@@ -148,6 +148,27 @@ export default class FamilyWallClient {
     return (await response.json()) as unknown;
   }
 
+  async updateEvent(eventId: string, event: CreateEventRequest): Promise<CalendarEvent> {
+    const body = {
+      metaId: eventId,
+      partnerScope: "Family",
+      picture: "$empty",
+      timeZone: "Europe/London",
+      isToAll: "false",
+      private: "",
+      recurrencyInterval: "1",
+      recurrency: "NONE",
+      byDay: "",
+      byMonthDay: "",
+      recurrencyEndDate: "$empty",
+      reminderList: "$empty",
+      ...event
+    }
+    const response = await this.apiFetch("evtupdate", body);
+    const json = await response.json() as EventCreateResponse;
+    return json.a00.r.r;
+  }
+
   async createEvent(event: CreateEventRequest): Promise<CalendarEvent> {
     const body = {
       partnerScope: "Family",
