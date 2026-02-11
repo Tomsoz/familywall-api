@@ -1,44 +1,77 @@
-class FamilyWallClient {
-  constructor(data) {
+import FamilyWallClient from "./client.js";
+import type {
+  AllFamilyResponse,
+  RawMember,
+  RawMedia,
+  RawProfile,
+  Member,
+  MemberDevice,
+  MemberIdentifier,
+  MemberMedia,
+  FamilySettings,
+  FamilyCoverMedia,
+  Thread,
+  PremiumDetails,
+  ProfileDetails,
+  CalendarEvent,
+  CreateEventRequest,
+} from "./types.js";
+
+export default class Family {
+  private readonly data: AllFamilyResponse;
+  private readonly familyId: string;
+  private readonly client: FamilyWallClient;
+
+  constructor(data: AllFamilyResponse, client: FamilyWallClient) {
     this.data = data;
+    this.familyId = data.a00.r.r.family_id;
+    this.client = client;
   }
 
-  // Access members data from a00
-  getMembers() {
+  async createCalendarEvent(event: CreateEventRequest): Promise<CalendarEvent> {
+    return await this.client.createEvent(event);
+  }
+
+  async deleteCalendarEvent(eventId: string): Promise<boolean> {
+    return await this.client.deleteEvent(eventId);
+  }
+
+  async getCalendarEvents(): Promise<CalendarEvent[]> {
+    const calendar = await this.client.getCalendar(`calendar/${this.familyId}`)
+    return calendar.updatedCreated;
+  }
+
+  getMembers(): Member[] {
     return this.data.a00.r.r.members.map((member) =>
       this._getMemberDetails(member)
     );
   }
 
-  // Access a specific member by first name from a00
-  getMember(firstName) {
+  getMember(firstName: string): Member | null {
     const member = this.data.a00.r.r.members.find(
-      (member) => member.firstName === firstName
+      (m) => m.firstName === firstName
     );
     return member ? this._getMemberDetails(member) : null;
   }
 
-  // Access member profiles from a01 (more detailed profile information)
-  getMemberProfile(accountId) {
+  getMemberProfile(accountId: string): ProfileDetails | null {
     const profile = this.data.a01?.r?.r[accountId];
     return profile ? this._getProfileDetails(profile) : null;
   }
 
-  // Get the overall family settings from a03
-  getFamilySettings() {
+  getFamilySettings(): FamilySettings | null {
     const settings = this.data.a03?.r?.r;
     return settings
       ? {
-          familyId: settings.familyId,
-          reminderValue: settings.defaultReminderValue,
-          geolocSharing: settings.geolocSharing,
-          calendarFirstDayOfWeek: settings.calendarFirstDayOfWeek,
-        }
+        familyId: settings.familyId,
+        reminderValue: settings.defaultReminderValue,
+        geolocSharing: settings.geolocSharing,
+        calendarFirstDayOfWeek: settings.calendarFirstDayOfWeek,
+      }
       : null;
   }
 
-  // Get family media from a00
-  getFamilyMedia() {
+  getFamilyMedia(): FamilyCoverMedia[] {
     return this.data.a00.r.r.coverMedias.map((media) => ({
       pictureUrl: media.pictureUrl,
       resolution: `${media.resolutionX}x${media.resolutionY}`,
@@ -47,8 +80,7 @@ class FamilyWallClient {
     }));
   }
 
-  // Get the messaging data from a05
-  getMessages() {
+  getMessages(): Thread[] | undefined {
     return this.data.a05?.r?.r.map((thread) => ({
       threadId: thread.metaId,
       participants: thread.participants.map((participant) => ({
@@ -61,24 +93,22 @@ class FamilyWallClient {
     }));
   }
 
-  // Get premium account details from a06
-  getPremiumAccountDetails() {
+  getPremiumAccountDetails(): PremiumDetails | null {
     const premium = this.data.a06?.r?.r.premium;
     return premium
       ? {
-          premiumMember: premium.fWPremiumMemberSubscriber,
-          familyQuota: premium.familyQuota,
-          premiumFeatures: {
-            geoFencing: premium.geoFencingActivated,
-            audioAvailable: premium.audio,
-            videoAvailable: premium.videoAvailable,
-          },
-        }
+        premiumMember: premium.fWPremiumMemberSubscriber,
+        familyQuota: premium.familyQuota,
+        premiumFeatures: {
+          geoFencing: premium.geoFencingActivated,
+          audioAvailable: premium.audio,
+          videoAvailable: premium.videoAvailable,
+        },
+      }
       : null;
   }
 
-  // Private function to structure member details
-  _getMemberDetails(member) {
+  private _getMemberDetails(member: RawMember): Member {
     return {
       firstName: member.firstName,
       email: member.identifiers.find((id) => id.type === "Email")?.value,
@@ -99,8 +129,7 @@ class FamilyWallClient {
     };
   }
 
-  // Private helper for devices
-  _getMemberDevices(member) {
+  private _getMemberDevices(member: RawMember): MemberDevice[] {
     return member.devices.map((device) => ({
       deviceType: device.deviceType,
       deviceId: device.deviceId,
@@ -108,8 +137,7 @@ class FamilyWallClient {
     }));
   }
 
-  // Private helper for identifiers
-  _getMemberIdentifiers(member) {
+  private _getMemberIdentifiers(member: RawMember): MemberIdentifier[] {
     return member.identifiers.map((identifier) => ({
       type: identifier.type,
       value: identifier.value,
@@ -117,8 +145,7 @@ class FamilyWallClient {
     }));
   }
 
-  // Private helper for media
-  _getMemberMedias(member) {
+  private _getMemberMedias(member: RawMember): MemberMedia[] {
     return member.medias.map((media) => ({
       pictureUrl: media.pictureUrl,
       canUpdate: media.rights?.canUpdate || false,
@@ -126,8 +153,7 @@ class FamilyWallClient {
     }));
   }
 
-  // Private helper to get profile details from a01
-  _getProfileDetails(profile) {
+  private _getProfileDetails(profile: RawProfile): ProfileDetails {
     return {
       firstName: profile.firstName,
       email: profile.devices?.[0]?.value,
@@ -138,8 +164,7 @@ class FamilyWallClient {
     };
   }
 
-  // Helper to get profile media from a01
-  _getProfileMedias(medias) {
+  private _getProfileMedias(medias: RawMedia[]): MemberMedia[] {
     return medias.map((media) => ({
       pictureUrl: media.pictureUrl,
       canUpdate: media.rights?.canUpdate || false,
@@ -147,6 +172,3 @@ class FamilyWallClient {
     }));
   }
 }
-
-// Export the FamilyWallClient class as a module
-export default FamilyWallClient;
