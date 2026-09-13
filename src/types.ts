@@ -139,6 +139,80 @@ export interface EventSyncResponse {
   a00: ApiResponseWrapper<EventDataPayload>
 }
 
+export interface RawListCategory {
+  name?: string;
+  [key: string]: unknown;
+}
+
+export interface RawListItem {
+  metaId?: string;
+  taskId?: string;
+  id?: string;
+  text?: string;
+  name?: string;
+  title?: string;
+  complete?: boolean | string;
+  completed?: boolean | string;
+  checked?: boolean | string;
+  isChecked?: boolean | string;
+  quantity?: string | number;
+  accountId?: string;
+  categories?: Array<RawListCategory | string>;
+  creationDate?: string;
+  [key: string]: unknown;
+}
+
+export interface RawList {
+  metaId?: string;
+  taskListId?: string;
+  listId?: string;
+  id?: string;
+  name?: string;
+  type?: string;
+  taskListType?: string;
+  itemCount?: number | string;
+  checkedCount?: number | string;
+  color?: string;
+  items?: RawListItem[];
+  tasks?: RawListItem[];
+  listItems?: RawListItem[];
+  [key: string]: unknown;
+}
+
+export interface RawApiError {
+  message?: string;
+  [key: string]: unknown;
+}
+
+export interface RawApiResult<T> {
+  r: T;
+}
+
+export interface RawApiCall<T> {
+  r?: RawApiResult<T>;
+  ex?: {
+    ex?: RawApiError | string;
+    [key: string]: unknown;
+  };
+  cn?: string;
+  [key: string]: unknown;
+}
+
+export interface RawApiResponse<T> {
+  a00?: RawApiCall<T>;
+  [key: string]: unknown;
+}
+
+export type RawListCollectionResult = RawList[] | {
+  lists?: RawList[];
+  taskLists?: RawList[];
+  [key: string]: unknown;
+};
+
+export type RawListDetailResult = RawList | RawListItem[];
+
+export type RawListCreateResult = RawList | string | RawList[];
+
 export interface AllFamilyResponse {
   a00: ApiResponseWrapper<FamilyDataPayload>;
   a01?: ApiResponseWrapper<Record<string, RawProfile>>;
@@ -211,7 +285,7 @@ export interface FamilyCoverMedia {
 export interface ThreadParticipant {
   accountId: string;
   firstName: string;
-  lastReadMessageDate: string;
+  lastReadMessageDate?: string;
 }
 
 export interface Thread {
@@ -242,4 +316,120 @@ export interface ProfileDetails {
 
 export interface FamilyWallClientOptions {
   timezone?: string;
+  fetch?: typeof fetch;
+}
+
+// ===== Lists =====
+
+export type ListType = "shopping" | "todo" | "other";
+
+export interface GetListsOptions {
+  type?: ListType;
+}
+
+export interface CreateListRequest {
+  name: string;
+  type: ListType;
+}
+
+export type ListTypeValue = ListType | (string & {});
+
+export interface ListSummary {
+  id: string;
+  name: string;
+  type?: ListTypeValue;
+  itemCount?: number;
+  checkedCount?: number;
+  color?: string;
+}
+
+export interface ListItem {
+  id: string;
+  text: string;
+  completed: boolean;
+  quantity?: string | number;
+  authorId?: string;
+  categories?: string[];
+  creationDate?: string;
+}
+
+export interface ListDetails {
+  id: string;
+  name?: string;
+  type?: ListTypeValue;
+  itemCount?: number;
+  checkedCount?: number;
+  color?: string;
+  items: ListItem[];
+}
+
+export interface AddListItemRequest {
+  text: string;
+  quantity?: string | number;
+}
+
+// ===== Calendar ranges =====
+
+export interface GetCalendarRangeOptions {
+  /** Date-only values are resolved against the client's configured timezone. */
+  startDate?: Date | string;
+  endDate?: Date | string;
+  /** Positive whole number of days from `startDate`, or from now when omitted. */
+  days?: number;
+}
+
+// ===== Messaging =====
+
+export interface MessageAttachment {
+  id: string;
+  name?: string;
+  mimeType?: string;
+  size?: number;
+  pictureUrl?: string;
+  resolutionX?: number;
+  resolutionY?: number;
+  durationMs?: number;
+  readyState?: string;
+}
+
+export interface Message {
+  id: string;
+  text?: string;
+  authorId?: string;
+  authorName?: string;
+  creationDate?: string;
+  type?: string;
+  attachments: MessageAttachment[];
+}
+
+export interface GetThreadMessagesOptions {
+  /** Number of messages to request; the server continuation contract is unknown. */
+  limit?: number;
+}
+
+export interface MessagePage {
+  messages: Message[];
+  size?: number;
+  count?: number;
+  start?: number;
+}
+
+export interface SendMessageRequest {
+  text: string;
+}
+
+export interface DownloadAttachmentOptions {
+  signal?: AbortSignal;
+  /** Rejects the download once this many bytes have been read. */
+  maxBytes?: number;
+}
+
+export interface AttachmentDownload {
+  url: string;
+  mimeType?: string;
+  /** Content-Length when the server supplies one; it is not enforced as truth. */
+  size?: number;
+  /** Server-supplied name stripped to a bare basename; still untrusted. */
+  filename?: string;
+  body: ReadableStream<Uint8Array>;
 }
